@@ -66,12 +66,19 @@ class _HomePageState extends State<HomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "22°",
-                    style: TextStyle(
-                        color: Colors.black54,
-                        fontWeight: FontWeight.bold,
-                        fontSize: MediaQuery.of(context).size.width/2.5),
+                  Stack(
+                    children: [
+                      Text(
+                        "22°",
+                        style: TextStyle(
+                            color: Colors.black54,
+                            fontWeight: FontWeight.bold,
+                            fontSize: MediaQuery.of(context).size.width/2.5),
+                      ),
+                      Image(
+                        image: AssetImage("images/sunny.png"),
+                      ),
+                    ],
                   ),
 
                 ],
