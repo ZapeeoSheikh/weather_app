@@ -49,6 +49,45 @@ class _HomePageState extends State<HomePage> {
                     size: 25,
                   ),
                 ],
+              ),
+              SizedBox(height: 10,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Monday, 10 Aug 2022",
+                    style: TextStyle(
+                        color: Colors.black54,
+                        fontSize: 17),
+                  )
+                ],
+              ),
+              SizedBox(height: 30,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "22°",
+                    style: TextStyle(
+                        color: Colors.black54,
+                        fontWeight: FontWeight.bold,
+                        fontSize: MediaQuery.of(context).size.width/2.5),
+                  ),
+
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 35.0),
+                child: Row(
+                  children: [
+                    Text(
+                      "cloudy",
+                      style: TextStyle(
+                          color: Colors.black54,
+                          fontSize: 25),
+                    ),
+                  ],
+                ),
               )
             ],
           ),
