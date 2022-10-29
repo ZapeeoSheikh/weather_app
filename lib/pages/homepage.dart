@@ -16,6 +16,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,7 +68,15 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.black54,
                         size: 25,
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          if(globals.color == true) {
+                            globals.color = false;
+                          }
+                          else
+                            globals.color = true;
+                        });
+                      },
                     ),
                   ],
                 ),

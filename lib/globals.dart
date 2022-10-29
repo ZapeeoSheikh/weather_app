@@ -8,4 +8,5 @@ String sunrise = "";
 String sunset = "";
 String feelslike = "";
 String location = "";
+bool color = true;
 
