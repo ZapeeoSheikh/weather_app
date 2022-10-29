@@ -18,11 +18,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
@@ -1219,7 +1214,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                
+
 
               ],
             ),
