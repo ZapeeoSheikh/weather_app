@@ -5,6 +5,7 @@ import 'package:weather_app/globals.dart' as globals;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
+import '../routes.dart';
 import '../ui.dart';
 
 class HomePage extends StatefulWidget {
@@ -220,7 +221,9 @@ class _HomePageState extends State<HomePage> {
                       ),),
                       Expanded(child: Container()),
                        TextButton(
-                         onPressed: () {  },
+                         onPressed: () {
+                           Navigator.of(context).pushNamed(Routes.details7days);
+                         },
                          child: Row(
                            children: [
                              Text("Next 7 days", style: TextStyle(
@@ -695,63 +698,7 @@ class _HomePageState extends State<HomePage> {
                                           fontSize: 18),
                                     ),
                                   ),
-                                  // Column(
-                                  //   mainAxisAlignment:
-                                  //   MainAxisAlignment.start,
-                                  //   crossAxisAlignment:
-                                  //   CrossAxisAlignment.start,
-                                  //   children: [
-                                  //     Row(
-                                  //       children: [
-                                  //
-                                  //         SizedBox(
-                                  //           width: 25,
-                                  //         ),
-                                  //         Image(
-                                  //           image: AssetImage(
-                                  //             "images/icons/notify.png",
-                                  //           ),
-                                  //         ),
-                                  //       ],
-                                  //     ),
-                                  //     SizedBox(
-                                  //       height: 5,
-                                  //     ),
-                                  //     Text(
-                                  //       "25mins",
-                                  //       style:
-                                  //       GoogleFonts.redHatDisplay(
-                                  //         textStyle: TextStyle(
-                                  //             color: MyColor.inActive,
-                                  //             fontSize: 11),
-                                  //       ),
-                                  //     ),
-                                  //     SizedBox(
-                                  //       height: 5,
-                                  //     ),
-                                  //     Row(
-                                  //       crossAxisAlignment:
-                                  //       CrossAxisAlignment.start,
-                                  //       children: [
-                                  //         Icon(
-                                  //           Icons.location_on,
-                                  //           size: 10,
-                                  //           color: MyColor.inActive,
-                                  //         ),
-                                  //         Text(
-                                  //           "Street 205, jinnah Garden",
-                                  //           style: GoogleFonts
-                                  //               .redHatDisplay(
-                                  //             textStyle: TextStyle(
-                                  //                 color:
-                                  //                 MyColor.inActive,
-                                  //                 fontSize: 10),
-                                  //           ),
-                                  //         ),
-                                  //       ],
-                                  //     ),
-                                  //   ],
-                                  // ),
+
                                 ],
                               ),
                             )),
