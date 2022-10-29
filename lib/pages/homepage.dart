@@ -720,7 +720,9 @@ class _HomePageState extends State<HomePage> {
                       ),),
                       Expanded(child: Container()),
                        TextButton(
-                         onPressed: () {  },
+                         onPressed: () {
+                           Navigator.pushNamed(context, Routes.details7days);
+                         },
                          child: Row(
                            children: [
                              Text("1 Month", style: TextStyle(
