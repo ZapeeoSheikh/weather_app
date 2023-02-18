@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:weather_app/globals.dart' as globals;
+import 'package:weather_app/pages/signup.dart';
 
 import '../routes.dart';
 
@@ -42,8 +43,7 @@ class LandingPage extends StatelessWidget {
             Spacer(flex: 4,),
             GestureDetector(
               onTap: (){
-                Navigator.pushNamed(context, Routes.home);
-                weather(31.5204, 74.3587);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpPage()));
               },
               child: Container(
                 width: 160,
@@ -60,9 +60,10 @@ class LandingPage extends StatelessWidget {
             ),
             GestureDetector(
               onTap: (){
-
+                Navigator.pushNamed(context, Routes.home);
+                weather(31.5204, 74.3587);
               },
-              child: Text("Create an account", style: TextStyle(color: Colors.black54
+              child: Text("Continue without an account", style: TextStyle(color: Colors.black54
               ),),
             ),
             Spacer(
