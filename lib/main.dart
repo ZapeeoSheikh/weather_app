@@ -22,7 +22,7 @@ class StartUp extends StatelessWidget {
 
     );
 
-    ThemeData _lightTheme = ThemeData(
+ThemeData _lightTheme = ThemeData(
         accentColor: Colors.white,
         brightness: Brightness.light,
         primaryColor: MyColor.mainColor1
