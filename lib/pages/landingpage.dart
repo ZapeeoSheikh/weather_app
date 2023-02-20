@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:weather_app/globals.dart' as globals;
+import 'package:weather_app/pages/homepage.dart';
 import 'package:weather_app/pages/signup.dart';
 
 import '../routes.dart';
@@ -60,8 +61,7 @@ class LandingPage extends StatelessWidget {
             ),
             GestureDetector(
               onTap: (){
-                Navigator.pushNamed(context, Routes.home);
-                weather(31.5204, 74.3587);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
               },
               child: Text("Continue without an account", style: TextStyle(color: Colors.black54
               ),),
@@ -78,48 +78,5 @@ class LandingPage extends StatelessWidget {
 
 
 
-Future<void> weather(double lat, double log) async {
-  try {
-    String apikey = "78043d6c851334d110ca5d3398bcb2a1";
-    Response response = await get(
-      Uri.parse("https://api.openweathermap.org/data/3.0/onecall?lat=" +
-          lat.toString() +
-          "&lon=" +
-          log.toString() + "&exclude=hourly&appid=" + apikey),
-    );
-    print(response.statusCode);
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body.toString());
-
-      globals.location = data['timezone'];
-      // print(data);
-      // print();
-      globals.sunrise = data['current']['sunrise'];
-      // print();
-      globals.sunset = data['current']['sunset'];
-      // print();
-      globals.temp = (data['current']['temp'] - 273.15 );
-      // print();
-      globals.feelslike = data['current']['feels_like'];
-      // print();
-      // print();
-      globals.pressure = data['current']['pressure'];
-
-      // print();
-      globals.humidity = data['current']['humidity'];
-
-      // print();
-      globals.status = data['current']['weather'][0]['main'];
-
-      // } else {}
-    } else {
-      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      //     content: Text("Oops something went wrong ${response.statusCode}")));
-    }
-  } catch (e) {
-    print(e.toString());
-  }
-}
 
 

@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:weather_app/ForecastModel.dart';
 import 'package:weather_app/SearchModel.dart';
 import 'package:weather_app/globals.dart' as globals;
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:weather_app/pages/detailspage.dart';
 
 import '../AppUrl.dart';
 import '../routes.dart';
@@ -23,7 +25,7 @@ class _HomePageState extends State<HomePage> {
   String? location;
   double? lon ;
   double? lat ;
-  double? temp ;
+  double temp = 20;
   String? region ;
   String? country ;
 
@@ -39,7 +41,8 @@ class _HomePageState extends State<HomePage> {
       country = search.country;
       isSearching = false;
       if(location != null){
-          currentdata();
+          // currentdata();
+          forecastdata();
         }
       },
       child: Column(
@@ -223,7 +226,7 @@ class _HomePageState extends State<HomePage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "${DateTime.now().day} - ${DateTime.now().month < 10 ? "0" + "${DateTime.now().month}" : DateTime.now().month} - ${DateTime.now().year}",
+                                  "${globals.last_updated}",
                                   style: TextStyle(
                                       color: Colors.black54, fontSize: 17),
                                 )
@@ -235,7 +238,7 @@ class _HomePageState extends State<HomePage> {
                             Stack(
                               children: [
                                 Text(
-                                  "${( temp!).round()}°",
+                                  "${(globals.temp_c).round() < 10 ? "0"+"${(globals.temp_c).round()}" : (globals.temp_c).round()}°",
                                   // "${globals.temp}°",
                                   style: TextStyle(
                                       color: Colors.black54,
@@ -244,14 +247,6 @@ class _HomePageState extends State<HomePage> {
                                           MediaQuery.of(context).size.width /
                                               2.5),
                                 ),
-                                Positioned(
-                                  right: -80,
-                                  bottom: -20,
-                                  child: Image(
-                                    color: Colors.white.withOpacity(0.8), colorBlendMode: BlendMode.modulate,
-                                    image: AssetImage("images/sunny.png"),
-                                  ),
-                                ),
                               ],
                             ),
                             Padding(
@@ -259,10 +254,16 @@ class _HomePageState extends State<HomePage> {
                               child: Row(
                                 children: [
                                   Text(
-                                    "Cloudy",
+                                    "${globals.status}",
                                     // "${globals.status}",
                                     style: TextStyle(
                                         color: Colors.black54, fontSize: 25),
+                                  ),
+                                  Image(
+                                    color: Colors.white.withOpacity(0.8), colorBlendMode: BlendMode.modulate,
+                                    image: NetworkImage("${AppUrl.imageHost}${globals.icon}"),
+                                    width: 50,
+                                    height: 50,
                                   ),
                                 ],
                               ),
@@ -297,7 +298,7 @@ class _HomePageState extends State<HomePage> {
                                                 height: 5,
                                               ),
                                               Text(
-                                                "30%",
+                                                "${globals.humidity}%",
                                                 style: TextStyle(
                                                     color: MyColor.mainColor1,
                                                     fontWeight: FontWeight.bold),
@@ -320,7 +321,7 @@ class _HomePageState extends State<HomePage> {
                                                 height: 5,
                                               ),
                                               Text(
-                                                "30 km/h",
+                                                "${(globals.pressure_in).round()} km/h",
                                                 style: TextStyle(
                                                     color: MyColor.mainColor1,
                                                     fontWeight: FontWeight.bold),
@@ -343,7 +344,7 @@ class _HomePageState extends State<HomePage> {
                                                 height: 5,
                                               ),
                                               Text(
-                                                "20 C",
+                                                "${(globals.feelslike_c).round()} C",
                                                 style: TextStyle(
                                                     color: MyColor.mainColor1,
                                                     fontWeight: FontWeight.bold),
@@ -377,8 +378,8 @@ class _HomePageState extends State<HomePage> {
                                   Expanded(child: Container()),
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.of(context)
-                                          .pushNamed(Routes.details7days);
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => DetailsPage()));
+
                                     },
                                     child: Row(
                                       children: [
@@ -705,8 +706,11 @@ class _HomePageState extends State<HomePage> {
                                   Expanded(child: Container()),
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.pushNamed(
-                                          context, Routes.details7days);
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  DetailsPage()));
                                     },
                                     child: Row(
                                       children: [
@@ -1056,9 +1060,7 @@ class _HomePageState extends State<HomePage> {
     return _searchcity;
   }
 
-
-
-   Future<void> currentdata() async {
+  Future<void> currentdata() async {
     Map<String, String> headers = {
       'X-RapidAPI-Key': '4125166edamsh1f1046759a58aa9p19ba8ejsndf5c5eba5b36',
     'X-RapidAPI-Host': 'weatherapi-com.p.rapidapi.com'
@@ -1073,11 +1075,14 @@ class _HomePageState extends State<HomePage> {
         print(data);
 
         setState(() {
-          temp = data['current']['temp_c'];
-          // lon = data[0]['lon'];
-          // lat = data[0]['lat'];
-          // region = data[0]['region'];
-          // country = data[0]['country'];
+          globals.temp_c = data['current']['temp_c'];
+          globals.name = data['location']['name'];
+          globals.status = data['current']['condition']['text'];
+          globals.icon = data['current']['condition']['icon'];
+          globals.humidity = data['current']['humidity'];
+          globals.feelslike_c = data['current']['feelslike_c'];
+          globals.last_updated = data['current']['last_updated'];
+          globals.pressure_in = data['current']['pressure_in'];
         });
       } else
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -1087,6 +1092,32 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+
+
+  Future<void> forecastdata() async {
+    Map<String, String> headers = {
+      'X-RapidAPI-Key': '4125166edamsh1f1046759a58aa9p19ba8ejsndf5c5eba5b36',
+      'X-RapidAPI-Host': 'weatherapi-com.p.rapidapi.com'
+    };
+    // print(headers['Authorization']);
+    try {
+      Response response = await get(Uri.parse(AppUrl.baseUrl + AppUrl.forecast + "${location}" + "&days=5"),
+          headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body.toString());
+        print(data);
+
+        setState(() {
+
+        });
+      } else
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Oops something went wrong ${response.statusCode}")));
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 
 
 }

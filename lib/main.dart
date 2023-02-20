@@ -32,9 +32,9 @@ ThemeData _lightTheme = ThemeData(
       theme: globals.color == true ? _lightTheme : _darkTheme,
 
       routes: {
-        Routes.home : (context) => HomePage(),
-        Routes.login : (context) => LandingPage(),
-        Routes.details7days : (context) => DetailsPage(),
+        // Routes.home : (context) => HomePage(),
+        // Routes.login : (context) => LandingPage(),
+        // Routes.details7days : (context) => DetailsPage(),
       },
       debugShowCheckedModeBanner: false,
       home: Scaffold(
