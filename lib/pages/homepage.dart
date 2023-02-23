@@ -28,9 +28,15 @@ class _HomePageState extends State<HomePage> {
   double temp = 20;
   String? region ;
   String? country ;
-
+  TodayModel? todaymodel;
   final searchController = TextEditingController();
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+  }
   @override
   Widget _buildWidget(SearchCity search) {
     return GestureDetector(
@@ -41,8 +47,8 @@ class _HomePageState extends State<HomePage> {
       country = search.country;
       isSearching = false;
       if(location != null){
-          // currentdata();
-          forecastdata();
+          currentdata();
+          // forecastdata();
         }
       },
       child: Column(
@@ -261,7 +267,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   Image(
                                     color: Colors.white.withOpacity(0.8), colorBlendMode: BlendMode.modulate,
-                                    image: NetworkImage("${AppUrl.imageHost}${globals.icon}"),
+                                    image: NetworkImage("${globals.icon == "" ? "" : AppUrl.imageHost + globals.icon}"),
                                     width: 50,
                                     height: 50,
                                   ),
