@@ -1,10 +1,15 @@
-# weather_app
+# chat_with_bot
 
-A new Flutter project.
+A Weather Forcasting Mobile Application that can predict weather based on current and previous stats. For the backend I have used Rapid API to get result.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+[![Weather Forcasting](images/display.png)](https://youtu.be/qm_laewLt5k)
+
+
+
+
+## Click the Image to check more about the project.
 
 A few resources to get you started if this is your first Flutter project:
 
