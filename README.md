@@ -1,4 +1,4 @@
-# chat_with_bot
+# weather_forcasting
 
 A Weather Forcasting Mobile Application that can predict weather based on current and previous stats. For the backend I have used Rapid API to get result.
 
