@@ -11,6 +11,13 @@ A Weather Forcasting Mobile Application that can predict weather based on curren
 
 ## Click the Image to check more about the project.
 
+This Project consist of Parts:
+- [Part 01](https://youtu.be/2l3bOK61UX4)
+- [Part 02](https://youtu.be/haNWZJ6S6_E)
+- [Part 03](https://youtu.be/zdDC0C47W5k)
+- [Part 04](https://youtu.be/qm_laewLt5k)
+
+
 A few resources to get you started if this is your first Flutter project:
 
 - [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
