@@ -1,7 +1,7 @@
 # weather_forcasting
 
 A Weather Forcasting Mobile Application that can predict weather based on current and previous stats. For the backend I have used Rapid API to get result.
-
+<!--
 ## Getting Started
 
 [![Weather Forcasting](images/display.png)](https://youtu.be/qm_laewLt5k)
@@ -17,7 +17,7 @@ This Project consist of Parts:
 - [Part 03 (Click to see)](https://youtu.be/zdDC0C47W5k)
 - [Part 04 (Click to see)](https://youtu.be/qm_laewLt5k)
 
-
+-->
 A few resources to get you started if this is your first Flutter project:
 
 - [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
