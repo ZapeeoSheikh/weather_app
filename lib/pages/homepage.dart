@@ -23,32 +23,38 @@ class _HomePageState extends State<HomePage> {
   bool isSearching = false;
   bool isSearchComplete = false;
   String? location;
-  double? lon ;
-  double? lat ;
+  double? lon;
+
+  double? lat;
+
   double temp = 20;
-  String? region ;
-  String? country ;
-  TodayModel? todaymodel;
+  String? region;
+
+  String? country;
+
+  // ForeCastDay? todaymodel;
   final searchController = TextEditingController();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
   }
+
   @override
   Widget _buildWidget(SearchCity search) {
     return GestureDetector(
-      onTap: (){
-      location = search.name;
-      lon = search.lon;
-      lat = search.lat;
-      country = search.country;
-      isSearching = false;
-      if(location != null){
+      onTap: () {
+        location = search.name;
+        lon = search.lon;
+        lat = search.lat;
+        country = search.country;
+        isSearching = false;
+        if (location != null) {
           currentdata();
-          // forecastdata();
+          forecastdata().then((value) {
+            _todayModel.addAll(value);
+          });
         }
       },
       child: Column(
@@ -73,9 +79,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Text(
                             "${search.country}",
-                            style: TextStyle(
-                                color: Colors.black54,
-                                fontSize: 15),
+                            style:
+                            TextStyle(color: Colors.black54, fontSize: 15),
                           ),
                         ],
                       ),
@@ -84,24 +89,22 @@ class _HomePageState extends State<HomePage> {
                         width: 120,
                         child: Text(
                           "${search.region}",
-                          style: TextStyle(
-                              color: Colors.black54,
-                              fontSize: 15),
+                          style: TextStyle(color: Colors.black54, fontSize: 15),
                         ),
                       )
                     ],
                   )
-
                 ],
               ),
             ),
           ),
-          SizedBox(height: 10,),
+          SizedBox(
+            height: 10,
+          ),
         ],
       ),
-    ) ;
+    );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -174,861 +177,629 @@ class _HomePageState extends State<HomePage> {
                   ),
                   isSearching == true
                       ? Column(
+                    children: [
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Focus(
+                        onFocusChange: (hasFocus) {
+                          if (!hasFocus) {
+                            setState(() {
+                              if (searchController.text != "") {
+                                searchdata();
+                                print("searching");
+                                isSearchComplete = true;
+                              }
+                            });
+                          } else {
+                            print("Stop searching");
+                          }
+                        },
+                        child: TextField(
+                          controller: searchController,
+                          decoration: InputDecoration(
+                            hintText: "Search",
+                            labelText: "Search",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      isSearchComplete == true
+                          ? SingleChildScrollView(
+                        child: Column(
                           children: [
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Focus(
-                              onFocusChange: (hasFocus) {
-                                if (!hasFocus) {
-                                  setState(() {
-                                    if (searchController.text != "") {
-                                      searchdata();
-                                      print("searching");
-                                      isSearchComplete = true;
-                                    }
-
-                                  });
-                                }
-                                else {
-                                  print("Stop searching");
-                                }
-                              },
-                              child: TextField(
-                                controller: searchController,
-                                decoration: InputDecoration(
-                                  hintText: "Search",
-                                  labelText: "Search",
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                           isSearchComplete == true ? 
-                           SingleChildScrollView(
-                             child: Column(
-                               children: [
-                                 for (var city
-                                 in _searchcity)
-                                   _buildWidget(
-                                       city),
-                               ],
-                             ),
-                           )
-                               :
-                           Container(),
+                            for (var city in _searchcity)
+                              _buildWidget(city),
                           ],
-                        )
+                        ),
+                      )
+                          : Container(),
+                    ],
+                  )
                       : Column(
+                    children: [
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "${globals.last_updated}",
+                            style: TextStyle(
+                                color: Colors.black54, fontSize: 17),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Stack(
+                        children: [
+                          Text(
+                            "${(globals.temp_c).round() < 10 ? "0" +
+                                "${(globals.temp_c).round()}" : (globals.temp_c)
+                                .round()}°",
+                            // "${globals.temp}°",
+                            style: TextStyle(
+                                color: Colors.black54,
+                                fontWeight: FontWeight.bold,
+                                fontSize:
+                                MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width /
+                                    2.5),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 35.0),
+                        child: Row(
                           children: [
-                            SizedBox(
-                              height: 10,
+                            Text(
+                              "${globals.status}",
+                              // "${globals.status}",
+                              style: TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: globals.icon == "" ? 25 : 15),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "${globals.last_updated}",
-                                  style: TextStyle(
-                                      color: Colors.black54, fontSize: 17),
-                                )
-                              ],
+                            globals.icon == ""
+                                ? Image.asset(
+                              "images/cloud.png",
+                              color: Colors.white.withOpacity(0.8),
+                              colorBlendMode: BlendMode.modulate,
+                              width: 50,
+                              height: 50,
+                            )
+                                : Image.network(
+                              "${AppUrl.imageHost + globals.icon}",
+                              color: Colors.white.withOpacity(0.8),
+                              colorBlendMode: BlendMode.modulate,
+                              width: 50,
+                              height: 50,
                             ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Stack(
-                              children: [
-                                Text(
-                                  "${(globals.temp_c).round() < 10 ? "0"+"${(globals.temp_c).round()}" : (globals.temp_c).round()}°",
-                                  // "${globals.temp}°",
-                                  style: TextStyle(
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width /
-                                              2.5),
-                                ),
-                              ],
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 35.0),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "${globals.status}",
-                                    // "${globals.status}",
-                                    style: TextStyle(
-                                        color: Colors.black54, fontSize: 25),
-                                  ),
-                                  Image(
-                                    color: Colors.white.withOpacity(0.8), colorBlendMode: BlendMode.modulate,
-                                    image: NetworkImage("${globals.icon == "" ? "" : AppUrl.imageHost + globals.icon}"),
-                                    width: 50,
-                                    height: 50,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(50.0),
-                                ),
-                                elevation: 10,
-                                margin: EdgeInsets.all(8),
-                                color: Colors.white,
-                                child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        right: 20.0, top: 10, bottom: 10),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 25.0, vertical: 15.0),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Column(
-                                            children: [
-                                              Icon(
-                                                Icons.grain,
-                                                color: MyColor.mainColor1,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "${globals.humidity}%",
-                                                style: TextStyle(
-                                                    color: MyColor.mainColor1,
-                                                    fontWeight: FontWeight.bold),
-                                              ),
-                                              Text(
-                                                "Humidity",
-                                                style: TextStyle(
-                                                    color: MyColor.mainColor1,
-                                                    fontWeight: FontWeight.bold),
-                                              ),
-                                            ],
-                                          ),
-                                          Column(
-                                            children: [
-                                              Icon(
-                                                Icons.air,
-                                                color: MyColor.mainColor1,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "${(globals.pressure_in).round()} km/h",
-                                                style: TextStyle(
-                                                    color: MyColor.mainColor1,
-                                                    fontWeight: FontWeight.bold),
-                                              ),
-                                              Text(
-                                                "Pressure",
-                                                style: TextStyle(
-                                                    color: MyColor.mainColor1,
-                                                    fontWeight: FontWeight.bold),
-                                              ),
-                                            ],
-                                          ),
-                                          Column(
-                                            children: [
-                                              Icon(
-                                                Icons.severe_cold,
-                                                color: MyColor.mainColor1,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "${(globals.feelslike_c).round()} C",
-                                                style: TextStyle(
-                                                    color: MyColor.mainColor1,
-                                                    fontWeight: FontWeight.bold),
-                                              ),
-                                              Text(
-                                                "Feels Like",
-                                                style: TextStyle(
-                                                    color: MyColor.mainColor1,
-                                                    fontWeight: FontWeight.bold),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ))),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "Today",
-                                    style: TextStyle(
-                                        color: MyColor.textColor1,
-                                        letterSpacing: 0.5,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20),
-                                  ),
-                                  Expanded(child: Container()),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => DetailsPage()));
-
-                                    },
-                                    child: Row(
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50.0),
+                          ),
+                          elevation: 10,
+                          margin: EdgeInsets.all(8),
+                          color: Colors.white,
+                          child: Padding(
+                              padding: const EdgeInsets.only(
+                                  right: 20.0, top: 10, bottom: 10),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 25.0, vertical: 15.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
                                       children: [
-                                        Text(
-                                          "Next 7 days",
-                                          style: TextStyle(
-                                              color: MyColor.mainColor1,
-                                              letterSpacing: 0.5),
+                                        Icon(
+                                          Icons.grain,
+                                          color: MyColor.mainColor1,
                                         ),
                                         SizedBox(
-                                          width: 5,
+                                          height: 5,
                                         ),
-                                        Icon(Icons.chevron_right)
+                                        Text(
+                                          "${globals.humidity}%",
+                                          style: TextStyle(
+                                              color: MyColor.mainColor1,
+                                              fontWeight:
+                                              FontWeight.bold),
+                                        ),
+                                        Text(
+                                          "Humidity",
+                                          style: TextStyle(
+                                              color: MyColor.mainColor1,
+                                              fontWeight:
+                                              FontWeight.bold),
+                                        ),
                                       ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Center(
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: [
-                                    Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(35.0),
+                                    Column(
+                                      children: [
+                                        Icon(
+                                          Icons.air,
+                                          color: MyColor.mainColor1,
                                         ),
-                                        elevation: 4,
-                                        margin: EdgeInsets.all(8),
-                                        color: Colors.white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "12 am",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Image(
-                                                image: AssetImage(
-                                                    "images/sunny.png"),
-                                                width: 70,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "23 C",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )),
-                                    Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(35.0),
+                                        SizedBox(
+                                          height: 5,
                                         ),
-                                        elevation: 4,
-                                        margin: EdgeInsets.all(8),
-                                        color: Colors.white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "12 am",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Image(
-                                                image: AssetImage(
-                                                    "images/sunny.png"),
-                                                width: 70,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "23 C",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-
-                                            ],
-                                          ),
-                                        )),
-                                    Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(35.0),
+                                        Text(
+                                          "${(globals.pressure_in)
+                                              .round()} km/h",
+                                          style: TextStyle(
+                                              color: MyColor.mainColor1,
+                                              fontWeight:
+                                              FontWeight.bold),
                                         ),
-                                        elevation: 4,
-                                        margin: EdgeInsets.all(8),
-                                        color: Colors.white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "12 am",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Image(
-                                                image: AssetImage(
-                                                    "images/sunny.png"),
-                                                width: 70,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "23 C",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )),
-                                    Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(35.0),
+                                        Text(
+                                          "Pressure",
+                                          style: TextStyle(
+                                              color: MyColor.mainColor1,
+                                              fontWeight:
+                                              FontWeight.bold),
                                         ),
-                                        elevation: 4,
-                                        margin: EdgeInsets.all(8),
-                                        color: Colors.white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "12 am",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Image(
-                                                image: AssetImage(
-                                                    "images/sunny.png"),
-                                                width: 70,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "23 C",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )),
-                                    Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(35.0),
+                                      ],
+                                    ),
+                                    Column(
+                                      children: [
+                                        Icon(
+                                          Icons.severe_cold,
+                                          color: MyColor.mainColor1,
                                         ),
-                                        elevation: 4,
-                                        margin: EdgeInsets.all(8),
-                                        color: Colors.white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "12 am",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Image(
-                                                image: AssetImage(
-                                                    "images/sunny.png"),
-                                                width: 70,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "23 C",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )),
-                                    Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(35.0),
+                                        SizedBox(
+                                          height: 5,
                                         ),
-                                        elevation: 4,
-                                        margin: EdgeInsets.all(8),
-                                        color: Colors.white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "12 am",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Image(
-                                                image: AssetImage(
-                                                    "images/sunny.png"),
-                                                width: 70,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "23 C",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )),
+                                        Text(
+                                          "${(globals.feelslike_c).round()} C",
+                                          style: TextStyle(
+                                              color: MyColor.mainColor1,
+                                              fontWeight:
+                                              FontWeight.bold),
+                                        ),
+                                        Text(
+                                          "Feels Like",
+                                          style: TextStyle(
+                                              color: MyColor.mainColor1,
+                                              fontWeight:
+                                              FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
                                   ],
                                 ),
-                              ),
+                              ))),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Today",
+                              style: TextStyle(
+                                  color: MyColor.textColor1,
+                                  letterSpacing: 0.5,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20),
                             ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(12.0),
+                            Expanded(child: Container()),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            DetailsPage()));
+                              },
                               child: Row(
                                 children: [
                                   Text(
-                                    "Tommorow",
+                                    "Next 7 days",
                                     style: TextStyle(
-                                        color: MyColor.textColor1,
-                                        letterSpacing: 0.5,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20),
+                                        color: MyColor.mainColor1,
+                                        letterSpacing: 0.5),
                                   ),
-                                  Expanded(child: Container()),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  DetailsPage()));
-                                    },
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          "1 Month",
-                                          style: TextStyle(
-                                              color: MyColor.mainColor1,
-                                              letterSpacing: 0.5),
-                                        ),
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                        Icon(Icons.chevron_right)
-                                      ],
-                                    ),
+                                  SizedBox(
+                                    width: 5,
                                   ),
+                                  Icon(Icons.chevron_right)
                                 ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Center(
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: [
-                                    Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(35.0),
-                                        ),
-                                        elevation: 4,
-                                        margin: EdgeInsets.all(8),
-                                        color: Colors.white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "12 am",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Image(
-                                                image: AssetImage(
-                                                    "images/sunny.png"),
-                                                width: 70,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "23 C",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-
-                                            ],
-                                          ),
-                                        )),
-                                    Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(35.0),
-                                        ),
-                                        elevation: 4,
-                                        margin: EdgeInsets.all(8),
-                                        color: Colors.white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "12 am",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Image(
-                                                image: AssetImage(
-                                                    "images/sunny.png"),
-                                                width: 70,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "23 C",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-
-                                            ],
-                                          ),
-                                        )),
-                                    Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(35.0),
-                                        ),
-                                        elevation: 4,
-                                        margin: EdgeInsets.all(8),
-                                        color: Colors.white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "12 am",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Image(
-                                                image: AssetImage(
-                                                    "images/sunny.png"),
-                                                width: 70,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "23 C",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-
-                                            ],
-                                          ),
-                                        )),
-                                    Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(35.0),
-                                        ),
-                                        elevation: 4,
-                                        margin: EdgeInsets.all(8),
-                                        color: Colors.white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "12 am",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Image(
-                                                image: AssetImage(
-                                                    "images/sunny.png"),
-                                                width: 70,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "23 C",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )),
-                                    Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(35.0),
-                                        ),
-                                        elevation: 4,
-                                        margin: EdgeInsets.all(8),
-                                        color: Colors.white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "12 am",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Image(
-                                                image: AssetImage(
-                                                    "images/sunny.png"),
-                                                width: 70,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "23 C",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )),
-                                    Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(35.0),
-                                        ),
-                                        elevation: 4,
-                                        margin: EdgeInsets.all(8),
-                                        color: Colors.white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "12 am",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Image(
-                                                image: AssetImage(
-                                                    "images/sunny.png"),
-                                                width: 70,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                "23 C",
-                                                style: GoogleFonts.redHatDisplay(
-                                                  textStyle: TextStyle(
-                                                      color: MyColor.textColor1,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )),
-                                  ],
-                                ),
                               ),
                             ),
                           ],
                         ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Center(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              for(var item in _todayModel)
+                                forcastCard(item),
+
+
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Tommorow",
+                              style: TextStyle(
+                                  color: MyColor.textColor1,
+                                  letterSpacing: 0.5,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20),
+                            ),
+                            Expanded(child: Container()),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            DetailsPage()));
+                              },
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "1 Month",
+                                    style: TextStyle(
+                                        color: MyColor.mainColor1,
+                                        letterSpacing: 0.5),
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Icon(Icons.chevron_right)
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Center(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(35.0),
+                                  ),
+                                  elevation: 4,
+                                  margin: EdgeInsets.all(8),
+                                  color: Colors.white,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "12 am",
+                                          style:
+                                          GoogleFonts.redHatDisplay(
+                                            textStyle: TextStyle(
+                                                color: MyColor.textColor1,
+                                                fontWeight:
+                                                FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Image(
+                                          image: AssetImage(
+                                              "images/sunny.png"),
+                                          width: 70,
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                          "23 C",
+                                          style:
+                                          GoogleFonts.redHatDisplay(
+                                            textStyle: TextStyle(
+                                                color: MyColor.textColor1,
+                                                fontWeight:
+                                                FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )),
+                              Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(35.0),
+                                  ),
+                                  elevation: 4,
+                                  margin: EdgeInsets.all(8),
+                                  color: Colors.white,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "12 am",
+                                          style:
+                                          GoogleFonts.redHatDisplay(
+                                            textStyle: TextStyle(
+                                                color: MyColor.textColor1,
+                                                fontWeight:
+                                                FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Image(
+                                          image: AssetImage(
+                                              "images/sunny.png"),
+                                          width: 70,
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                          "23 C",
+                                          style:
+                                          GoogleFonts.redHatDisplay(
+                                            textStyle: TextStyle(
+                                                color: MyColor.textColor1,
+                                                fontWeight:
+                                                FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )),
+                              Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(35.0),
+                                  ),
+                                  elevation: 4,
+                                  margin: EdgeInsets.all(8),
+                                  color: Colors.white,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "12 am",
+                                          style:
+                                          GoogleFonts.redHatDisplay(
+                                            textStyle: TextStyle(
+                                                color: MyColor.textColor1,
+                                                fontWeight:
+                                                FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Image(
+                                          image: AssetImage(
+                                              "images/sunny.png"),
+                                          width: 70,
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                          "23 C",
+                                          style:
+                                          GoogleFonts.redHatDisplay(
+                                            textStyle: TextStyle(
+                                                color: MyColor.textColor1,
+                                                fontWeight:
+                                                FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )),
+                              Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(35.0),
+                                  ),
+                                  elevation: 4,
+                                  margin: EdgeInsets.all(8),
+                                  color: Colors.white,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "12 am",
+                                          style:
+                                          GoogleFonts.redHatDisplay(
+                                            textStyle: TextStyle(
+                                                color: MyColor.textColor1,
+                                                fontWeight:
+                                                FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Image(
+                                          image: AssetImage(
+                                              "images/sunny.png"),
+                                          width: 70,
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                          "23 C",
+                                          style:
+                                          GoogleFonts.redHatDisplay(
+                                            textStyle: TextStyle(
+                                                color: MyColor.textColor1,
+                                                fontWeight:
+                                                FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )),
+                              Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(35.0),
+                                  ),
+                                  elevation: 4,
+                                  margin: EdgeInsets.all(8),
+                                  color: Colors.white,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "12 am",
+                                          style:
+                                          GoogleFonts.redHatDisplay(
+                                            textStyle: TextStyle(
+                                                color: MyColor.textColor1,
+                                                fontWeight:
+                                                FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Image(
+                                          image: AssetImage(
+                                              "images/sunny.png"),
+                                          width: 70,
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                          "23 C",
+                                          style:
+                                          GoogleFonts.redHatDisplay(
+                                            textStyle: TextStyle(
+                                                color: MyColor.textColor1,
+                                                fontWeight:
+                                                FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )),
+                              Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(35.0),
+                                  ),
+                                  elevation: 4,
+                                  margin: EdgeInsets.all(8),
+                                  color: Colors.white,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "12 am",
+                                          style:
+                                          GoogleFonts.redHatDisplay(
+                                            textStyle: TextStyle(
+                                                color: MyColor.textColor1,
+                                                fontWeight:
+                                                FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Image(
+                                          image: AssetImage(
+                                              "images/sunny.png"),
+                                          width: 70,
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                          "23 C",
+                                          style:
+                                          GoogleFonts.redHatDisplay(
+                                            textStyle: TextStyle(
+                                                color: MyColor.textColor1,
+                                                fontWeight:
+                                                FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -1043,10 +814,11 @@ class _HomePageState extends State<HomePage> {
     'X-RapidAPI-Key': '4125166edamsh1f1046759a58aa9p19ba8ejsndf5c5eba5b36',
     'X-RapidAPI-Host': 'weatherapi-com.p.rapidapi.com'
   };
-  Future<List<SearchCity>> searchdata() async {
-    Response response = await get(Uri.parse(AppUrl.baseUrl + AppUrl.search +searchController.text),
-          headers: headers);
 
+  Future<List<SearchCity>> searchdata() async {
+    Response response = await get(
+        Uri.parse(AppUrl.baseUrl + AppUrl.search + searchController.text),
+        headers: headers);
 
     print(response.statusCode);
     if (response.statusCode == 200) {
@@ -1069,11 +841,12 @@ class _HomePageState extends State<HomePage> {
   Future<void> currentdata() async {
     Map<String, String> headers = {
       'X-RapidAPI-Key': '4125166edamsh1f1046759a58aa9p19ba8ejsndf5c5eba5b36',
-    'X-RapidAPI-Host': 'weatherapi-com.p.rapidapi.com'
+      'X-RapidAPI-Host': 'weatherapi-com.p.rapidapi.com'
     };
     // print(headers['Authorization']);
     try {
-      Response response = await get(Uri.parse(AppUrl.baseUrl + AppUrl.current + "${location}"),
+      Response response = await get(
+          Uri.parse(AppUrl.baseUrl + AppUrl.current + "${location}"),
           headers: headers);
 
       if (response.statusCode == 200) {
@@ -1098,32 +871,93 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  List<ForeCastDay> _todayModel = List<ForeCastDay>.empty(growable: true);
 
-
-  Future<void> forecastdata() async {
+  Future<List<ForeCastDay>> forecastdata() async {
     Map<String, String> headers = {
       'X-RapidAPI-Key': '4125166edamsh1f1046759a58aa9p19ba8ejsndf5c5eba5b36',
       'X-RapidAPI-Host': 'weatherapi-com.p.rapidapi.com'
     };
-    // print(headers['Authorization']);
-    try {
-      Response response = await get(Uri.parse(AppUrl.baseUrl + AppUrl.forecast + "${location}" + "&days=5"),
-          headers: headers);
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body.toString());
-        print(data);
+    Response response =
+    await get(
+        Uri.parse(
+            AppUrl.baseUrl + AppUrl.forecast + "${location}" + "&days=5"),
+        headers: headers);
+    // var Plist = List<Products>.empty(growable: true);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
 
-        setState(() {
+      // print(data);
 
-        });
-      } else
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Oops something went wrong ${response.statusCode}")));
-    } catch (e) {
-      print(e.toString());
+      setState(() {
+        for (var a in data) {
+          _todayModel.add(ForeCastDay.fromJson(a));
+        }
+      });
     }
+
+    else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Oops something went wrong ${response.statusCode}")));
+    }
+
+    return _todayModel;
   }
 
+  forcastCard(ForeCastDay item) {
+    return
+      Card(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+            BorderRadius.circular(35.0),
+          ),
+          elevation: 4,
+          margin: EdgeInsets.all(8),
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              mainAxisAlignment:
+              MainAxisAlignment.center,
+              children: [
+                Text(
+                  "${item.date} am",
+                  style:
+                  GoogleFonts.redHatDisplay(
+                    textStyle: TextStyle(
+                        color: MyColor.textColor1,
+                        fontWeight:
+                        FontWeight.bold,
+                        fontSize: 18),
+                  ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Image(
+                  image: AssetImage(
+                      "images/sunny.png"),
+                  width: 70,
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  "23 C",
+                  style:
+                  GoogleFonts.redHatDisplay(
+                    textStyle: TextStyle(
+                        color: MyColor.textColor1,
+                        fontWeight:
+                        FontWeight.bold,
+                        fontSize: 18),
+                  ),
+                ),
+              ],
+            ),
+          ));
+  }
 
 }
